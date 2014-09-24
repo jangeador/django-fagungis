@@ -37,7 +37,7 @@ def setup():
     _install_dependencies()
     _create_django_user()
     _setup_directories()
-    _hg_clone()
+    _clone()
     _install_virtualenv()
     _create_virtualenv()
     _install_gunicorn()
@@ -66,7 +66,7 @@ def deploy():
     puts(green_bg('Start deploy...'))
     start_time = datetime.now()
 
-    hg_pull()
+    _pull()
     _install_requirements()
     _upload_nginx_conf()
     _upload_rungunicorn_script()
@@ -82,9 +82,12 @@ def deploy():
 
 
 @task
-def hg_pull():
+def _pull():
     with cd(env.code_root):
-        sudo('hg pull -u')
+        if env.vcs == 'hg':
+            sudo('hg pull -u')
+        elif env.vcs == 'git':
+            sudo('git pull -u')
 
 
 @task
@@ -279,8 +282,6 @@ def _verify_sudo():
 
 def _install_nginx():
     # add nginx stable ppa
-    sudo("add-apt-repository ppa:nginx/stable")
-    sudo("apt-get update")
     sudo("apt-get -y install nginx")
     sudo("/etc/init.d/nginx start")
 
@@ -357,8 +358,11 @@ def virtenvsudo(command):
     sudo(activate + ' && ' + command)
 
 
-def _hg_clone():
-    sudo('hg clone %s %s' % (env.repository, env.code_root))
+def _clone():
+    if env.vcs == 'hg':
+        sudo('hg clone %s %s' % (env.repository, env.code_root))
+    elif env.vcs == 'git':
+        sudo('git clone %s %s' % (env.repository, env.code_root))
 
 
 def _test_nginx_conf():
@@ -410,10 +414,11 @@ def _upload_supervisord_conf():
 
 def _prepare_django_project():
     with cd(env.django_project_root):
-        virtenvrun('./manage.py syncdb --noinput --verbosity=1')
+        virtenvrun('python manage.py syncdb --noinput --verbosity=1')
         if env.south_used:
-            virtenvrun('./manage.py migrate --noinput --verbosity=1')
-        virtenvsudo('./manage.py collectstatic --noinput')
+            virtenvrun('python manage.py migrate --noinput --verbosity=1')
+        virtenvsudo('python manage.py collectstatic --noinput')
+        virtenvsudo('python manage.py installtasks --noinput')
 
 
 def _prepare_media_path():
