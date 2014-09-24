@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import posixpath
 from copy import copy
 from datetime import datetime
 from os.path import basename, abspath, dirname, isfile, join
-from fabric.api import env, puts, abort, cd, hide, task
+from fabric.api import env, puts, abort, cd, hide, task, local
 from fabric.operations import sudo, settings, run
 from fabric.contrib import console
 from fabric.contrib.files import upload_template
+from fabric.contrib.files import exists
 
 from fabric.colors import _wrap_with, green
 
@@ -357,12 +359,30 @@ def virtenvsudo(command):
     activate = 'source %s/bin/activate' % env.virtenv
     sudo(activate + ' && ' + command)
 
+def _ensure_src_dir():
+    """
+    Only clone the repo if it does not exists
+    """
+    if not exists(env.code_root):
+        run("mkdir -p %s" % env.code_root)
+    with cd(env.code_root):
+        if not exists(posixpath.join(env.code_root, '.git')):
+            run('git clone %s .' % (env.repository))
+
+def _push_sources():
+    """
+    Push source code to server
+    """
+    _ensure_src_dir()
+    local('git push origin master')
+    with cd(env.code_root):
+        run('git pull origin master')
 
 def _clone():
     if env.vcs == 'hg':
         sudo('hg clone %s %s' % (env.repository, env.code_root))
     elif env.vcs == 'git':
-        sudo('git clone %s %s' % (env.repository, env.code_root))
+        _push_sources()
 
 
 def _test_nginx_conf():
