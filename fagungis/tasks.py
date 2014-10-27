@@ -364,10 +364,10 @@ def _ensure_src_dir():
     Only clone the repo if it does not exists
     """
     if not exists(env.code_root):
-        run("mkdir -p %s" % env.code_root)
+        sudo("mkdir -p %s" % env.code_root)
     with cd(env.code_root):
         if not exists(posixpath.join(env.code_root, '.git')):
-            run('git clone %s .' % (env.repository))
+            sudo('git clone %s .' % (env.repository))
 
 def _push_sources():
     """
@@ -376,7 +376,7 @@ def _push_sources():
     _ensure_src_dir()
     local('git push origin master')
     with cd(env.code_root):
-        run('git pull origin master')
+        sudo('git pull origin master')
 
 def _clone():
     if env.vcs == 'hg':
