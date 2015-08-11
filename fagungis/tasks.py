@@ -302,9 +302,7 @@ def _install_dependencies():
     if "additional_packages" in env and env.additional_packages:
         sudo("apt-get -y install %s" % " ".join(env.additional_packages))
     _install_nginx()
-    # this command fails in ubuntu 14.04 possibly on the corporate network
-    # TODO: Fix this command
-    #sudo("pip install --upgrade pip")
+    sudo("pip install --upgrade pip")
 
 
 def _install_requirements():
@@ -436,7 +434,9 @@ def _upload_supervisord_conf():
 
 def _prepare_django_project():
     with cd(env.django_project_root):
-        virtenvrun('python manage.py syncdb --noinput --verbosity=1')
+        #virtenvrun('python manage.py syncdb --noinput --verbosity=1')
+        # django 1.7 +
+        virtenvrun('python manage.py migrate --noinput --verbosity=1')
         if env.south_used:
             virtenvrun('python manage.py migrate --noinput --verbosity=1')
         virtenvsudo('python manage.py collectstatic --noinput')
