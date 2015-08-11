@@ -440,7 +440,8 @@ def _prepare_django_project():
         if env.south_used:
             virtenvrun('python manage.py migrate --noinput --verbosity=1')
         virtenvsudo('python manage.py collectstatic --noinput')
-        virtenvsudo('python manage.py installtasks --noinput')
+        # we do not use kronos so this command will not be found
+        #virtenvsudo('python manage.py installtasks --noinput')
 
 
 def _prepare_media_path():
