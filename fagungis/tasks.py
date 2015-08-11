@@ -302,7 +302,9 @@ def _install_dependencies():
     if "additional_packages" in env and env.additional_packages:
         sudo("apt-get -y install %s" % " ".join(env.additional_packages))
     _install_nginx()
-    sudo("pip install --upgrade pip")
+    # this command fails in ubuntu 14.04 possibly on the corporate network
+    # TODO: Fix this command
+    #sudo("pip install --upgrade pip")
 
 
 def _install_requirements():
