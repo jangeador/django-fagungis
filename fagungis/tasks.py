@@ -336,7 +336,8 @@ def _install_virtualenv():
 
 
 def _create_virtualenv():
-    sudo('virtualenv --%s %s' % (' --'.join(env.virtenv_options), env.virtenv))
+    if not exists(env.virtenv):
+        sudo('virtualenv --%s %s' % (' --'.join(env.virtenv_options), env.virtenv))
 
 
 def _setup_directories():
