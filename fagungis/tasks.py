@@ -506,13 +506,6 @@ def _upload_django_local_settings():
 @task
 def _setup_database():
     with settings(warn_only=True):
-        # sudo(
-        #     'psql -U postgres -c "CREATE DATABASE %(psql_db)s;"' % env)
-        # sudo(
-        #     'psql -U postgres -c "CREATE USER %(psql_user)s WITH PASSWORD \'%(psql_password)s\';"' % env)
-        #
-        # sudo(
-        #     'psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE %(psql_db)s TO %(psql_user)s;"' % env)
-        sudo(postgres.server())
-        sudo(postgres.user(env.psql_user, password=env.psql_password))
-        sudo(postgres.database(env.psql_db, owner=env.psql_user))
+        postgres.server()
+        postgres.user(env.psql_user, password=env.psql_password)
+        postgres.database(env.psql_db, owner=env.psql_user)
