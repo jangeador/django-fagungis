@@ -3,6 +3,7 @@
 from os.path import join
 from fabric.api import env, task
 from fagungis.tasks import *
+from getpass import getpass
 
 
 @task
@@ -56,6 +57,12 @@ def example():
     env.requirements_file = join(env.code_root, 'requirements.txt')
     #  always ask user for confirmation when run any tasks
     env.ask_confirmation = True
+
+    ### START PostgreSQL settings ###
+    # credentials
+    env.psql_db = 'db_name'
+    env.psql_user = 'psql_username'
+    env.psql_password = getpass('Enter the password for %s at %s database: ' % (env.psql_user, env.psql_db))
 
     ### START gunicorn settings ###
     #  be sure to not have anything running on that port

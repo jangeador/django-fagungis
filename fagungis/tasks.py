@@ -469,3 +469,9 @@ def _supervisor_restart():
         print red_bg("%s NOT STARTED!" % env.supervisor_program_name)
     else:
         print green_bg("%s correctly started!" % env.supervisor_program_name)
+
+
+def _setup_database():
+    with settings(warn_only=True):
+        sudo('psql -U postgres -c "CREATE ROLE %(psql_user)s WITH PASSWORD \'%(psql_password)s\' NOSUPERUSER CREATEDB NOCREATEROLE LOGIN;"' % env)
+        sudo('psql -U postgres -c "CREATE DATABASE %(psql_db)s WITH OWNER=%(psql_user)s TEMPLATE=template0 ENCODING=\'utf-8\';"' % env)
