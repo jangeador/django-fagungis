@@ -308,7 +308,7 @@ def _install_dependencies():
         "python-pip",
         "supervisor",
     ]
-    sudo("apt-get update")
+    # sudo("apt-get update")
     sudo("apt-get -y install %s" % " ".join(packages))
     if "additional_packages" in env and env.additional_packages:
         sudo("apt-get -y install %s" % " ".join(env.additional_packages))
@@ -318,7 +318,7 @@ def _install_dependencies():
 
 def _upgrade_server_packages():
     sudo("apt-get update")
-    sudo("apt-get upgrade")
+    sudo("apt-get upgrade -y")
 
 
 def _install_requirements():
@@ -505,7 +505,7 @@ def _upload_django_local_settings():
 
 @task
 def _setup_database():
-    with settings(warn_only=True, user='root'):
+    with settings(warn_only=True):
         # sudo(
         #     'psql -U postgres -c "CREATE DATABASE %(psql_db)s;"' % env)
         # sudo(
@@ -513,6 +513,6 @@ def _setup_database():
         #
         # sudo(
         #     'psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE %(psql_db)s TO %(psql_user)s;"' % env)
-        postgres.server()
-        postgres.user(env.psql_user, password=env.psql_password)
-        postgres.database(env.psql_db, owner=env.psql_user)
+        sudo(postgres.server())
+        sudo(postgres.user(env.psql_user, password=env.psql_password))
+        sudo(postgres.database(env.psql_db, owner=env.psql_user))
