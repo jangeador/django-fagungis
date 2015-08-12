@@ -29,7 +29,7 @@ DEV = True
 
 ALLOWED_HOSTS = []
 
-SECRET_KEY = '!$6$*2no&ylbdo#9hzf=y^l%gz9n5cgi8hl7gn1!y5b)-i^ksz'
+SECRET_KEY = 'CHANGE_THIS-1234554321'
 
 INTERNAL_IPS = ('127.0.0.1')
 
