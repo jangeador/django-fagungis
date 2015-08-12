@@ -35,6 +35,8 @@ def example():
     env.django_project_root = env.code_root
     #  the Python path to a Django settings module.
     env.django_project_settings = 'settings'
+    #  the local settings to override base settings
+    env.django_local_settings_file = join(env.django_project_root, 'settings', 'local.py')
     #  django media dir
     env.django_media_path = join(env.code_root, 'media')
     #  django static dir

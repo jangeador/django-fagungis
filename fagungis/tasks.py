@@ -28,7 +28,7 @@ def setup():
     if not test_configuration():
         if not console.confirm("Configuration test %s! Do you want to continue?" % red_bg('failed'), default=False):
             abort("Aborting at user request.")
-    #  test configuration end
+    # test configuration end
     if env.ask_confirmation:
         if not console.confirm("Are you sure you want to setup %s?" % red_bg(env.project.upper()), default=False):
             abort("Aborting at user request.")
@@ -47,10 +47,12 @@ def setup():
     _upload_nginx_conf()
     _upload_rungunicorn_script()
     _upload_supervisord_conf()
+    # djc addition
+    _setup_database()
 
     end_time = datetime.now()
     finish_message = '[%s] Correctly finished in %i seconds' % \
-    (green_bg(end_time.strftime('%H:%M:%S')), (end_time - start_time).seconds)
+                     (green_bg(end_time.strftime('%H:%M:%S')), (end_time - start_time).seconds)
     puts(finish_message)
 
 
@@ -60,7 +62,7 @@ def deploy():
     if not test_configuration():
         if not console.confirm("Configuration test %s! Do you want to continue?" % red_bg('failed'), default=False):
             abort("Aborting at user request.")
-    #  test configuration end
+    # test configuration end
     _verify_sudo()
     if env.ask_confirmation:
         if not console.confirm("Are you sure you want to deploy in %s?" % red_bg(env.project.upper()), default=False):
@@ -73,13 +75,15 @@ def deploy():
     _upload_nginx_conf()
     _upload_rungunicorn_script()
     _upload_supervisord_conf()
+    # djc addition
+    _upload_django_local_settings()
     _prepare_django_project()
     _prepare_media_path()
     _supervisor_restart()
 
     end_time = datetime.now()
     finish_message = '[%s] Correctly deployed in %i seconds' % \
-    (green_bg(end_time.strftime('%H:%M:%S')), (end_time - start_time).seconds)
+                     (green_bg(end_time.strftime('%H:%M:%S')), (end_time - start_time).seconds)
     puts(finish_message)
 
 
@@ -273,7 +277,7 @@ def _create_django_user():
     if 'already exists' in res:
         puts('User \'%(django_user)s\' already exists, will not be changed.' % env)
         return
-    #  set password
+    # set password
     sudo('passwd %(django_user)s' % env)
 
 
@@ -359,6 +363,7 @@ def virtenvsudo(command):
     activate = 'source %s/bin/activate' % env.virtenv
     sudo(activate + ' && ' + command)
 
+
 def _ensure_src_dir():
     """
     Only clone the repo if it does not exists
@@ -369,6 +374,7 @@ def _ensure_src_dir():
         if not exists(posixpath.join(env.code_root, '.git')):
             sudo('git clone %s .' % (env.repository))
 
+
 def _push_sources():
     """
     Push source code to server
@@ -377,6 +383,7 @@ def _push_sources():
     local('git push origin master')
     with cd(env.code_root):
         sudo('git pull origin master')
+
 
 def _clone():
     if env.vcs == 'hg':
@@ -434,14 +441,14 @@ def _upload_supervisord_conf():
 
 def _prepare_django_project():
     with cd(env.django_project_root):
-        #virtenvrun('python manage.py syncdb --noinput --verbosity=1')
+        # virtenvrun('python manage.py syncdb --noinput --verbosity=1')
         # django 1.7 +
         virtenvrun('python manage.py migrate --noinput --verbosity=1')
         if env.south_used:
             virtenvrun('python manage.py migrate --noinput --verbosity=1')
         virtenvsudo('python manage.py collectstatic --noinput')
         # we do not use kronos so this command will not be found
-        #virtenvsudo('python manage.py installtasks --noinput')
+        # virtenvsudo('python manage.py installtasks --noinput')
 
 
 def _prepare_media_path():
@@ -471,7 +478,21 @@ def _supervisor_restart():
         print green_bg("%s correctly started!" % env.supervisor_program_name)
 
 
+def _upload_django_local_settings():
+    ''' upload supervisor conf '''
+    local_django_settings_file_path = "%s/conf/local.py" % dirname(env.real_fabfile)
+    if isfile(local_django_settings_file_path):
+        ''' we use user defined local.py template '''
+        template = local_django_settings_file_path
+    else:
+        template = '%s/conf/local.py' % fagungis_path
+    upload_template(template, env.django_local_settings_file,
+                    context=env, backup=False, use_sudo=True)
+
+
 def _setup_database():
     with settings(warn_only=True):
-        sudo('psql -U postgres -c "CREATE ROLE %(psql_user)s WITH PASSWORD \'%(psql_password)s\' NOSUPERUSER CREATEDB NOCREATEROLE LOGIN;"' % env)
-        sudo('psql -U postgres -c "CREATE DATABASE %(psql_db)s WITH OWNER=%(psql_user)s TEMPLATE=template0 ENCODING=\'utf-8\';"' % env)
+        sudo(
+            'psql -U postgres -c "CREATE ROLE %(psql_user)s WITH PASSWORD \'%(psql_password)s\' NOSUPERUSER CREATEDB NOCREATEROLE LOGIN;"' % env)
+        sudo(
+            'psql -U postgres -c "CREATE DATABASE %(psql_db)s WITH OWNER=%(psql_user)s TEMPLATE=template0 ENCODING=\'utf-8\';"' % env)
