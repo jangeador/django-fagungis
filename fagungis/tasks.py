@@ -266,6 +266,11 @@ def test_configuration(verbose=True):
     return True
 
 
+@task
+def install_updates():
+    _upgrade_server_packages()
+
+
 ########################
 ## END Fagungis tasks ##
 ########################
@@ -301,12 +306,17 @@ def _install_dependencies():
         "python-pip",
         "supervisor",
     ]
-    sudo("apt-get update")
+    # sudo("apt-get update")
     sudo("apt-get -y install %s" % " ".join(packages))
     if "additional_packages" in env and env.additional_packages:
         sudo("apt-get -y install %s" % " ".join(env.additional_packages))
     _install_nginx()
     sudo("pip install --upgrade pip")
+
+
+def _upgrade_server_packages():
+    sudo("apt-get update")
+    sudo("apt-get upgrade")
 
 
 def _install_requirements():
