@@ -500,9 +500,13 @@ def _upload_django_local_settings():
                     context=env, backup=False, use_sudo=True)
 
 
+@task
 def _setup_database():
     with settings(warn_only=True):
         sudo(
-            'psql -U postgres -c "CREATE ROLE %(psql_user)s WITH PASSWORD \'%(psql_password)s\' NOSUPERUSER CREATEDB NOCREATEROLE LOGIN;"' % env)
+            'psql -U postgres -c "CREATE DATABASE %(psql_db)s;"' % env)
         sudo(
-            'psql -U postgres -c "CREATE DATABASE %(psql_db)s WITH OWNER=%(psql_user)s TEMPLATE=template0 ENCODING=\'utf-8\';"' % env)
+            'psql -U postgres -c "CREATE USER %(psql_user)s WITH PASSWORD \'%(psql_password)s\';"' % env)
+
+        sudo(
+            'psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE %(psql_db)s TO %(psql_user)s;"' % env)
