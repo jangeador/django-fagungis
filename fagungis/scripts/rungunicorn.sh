@@ -7,7 +7,7 @@ export PYTHONPATH=`pwd`
 # activate the virtualenv
 source %(virtenv)s/bin/activate
 # start gunicorn with all options earlier declared in fabfile.py
-gunicorn --workers %(gunicorn_workers)s \
+exec gunicorn --workers %(gunicorn_workers)s \
     --bind=%(gunicorn_bind)s \
     --user=%(django_user)s \
     --group=%(django_user_group)s \
