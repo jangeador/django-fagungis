@@ -10,6 +10,8 @@ from fabric.contrib import console
 from fabric.contrib.files import upload_template
 from fabric.contrib.files import exists
 
+from fabtools.require import postgres
+
 from fabric.colors import _wrap_with, green
 
 green_bg = _wrap_with('42')
@@ -503,11 +505,14 @@ def _upload_django_local_settings():
 
 @task
 def _setup_database():
-    with settings(warn_only=True):
-        sudo(
-            'psql -U postgres -c "CREATE DATABASE %(psql_db)s;"' % env)
-        sudo(
-            'psql -U postgres -c "CREATE USER %(psql_user)s WITH PASSWORD \'%(psql_password)s\';"' % env)
-
-        sudo(
-            'psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE %(psql_db)s TO %(psql_user)s;"' % env)
+    with settings(warn_only=True, user='root'):
+        # sudo(
+        #     'psql -U postgres -c "CREATE DATABASE %(psql_db)s;"' % env)
+        # sudo(
+        #     'psql -U postgres -c "CREATE USER %(psql_user)s WITH PASSWORD \'%(psql_password)s\';"' % env)
+        #
+        # sudo(
+        #     'psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE %(psql_db)s TO %(psql_user)s;"' % env)
+        postgres.server()
+        postgres.user(env.psql_user, password=env.psql_password)
+        postgres.database(env.psql_db, owner=env.psql_user)
