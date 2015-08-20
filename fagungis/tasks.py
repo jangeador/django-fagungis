@@ -398,7 +398,6 @@ def _push_sources():
         with cd(env.code_root):
             sudo('git pull origin master')
     else:
-        local('git push origin %s' % env.branch)
         with cd(env.code_root):
             sudo('git pull origin %s' % env.branch)
             sudo('git checkout origin %s' % env.branch)
