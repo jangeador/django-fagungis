@@ -95,7 +95,10 @@ def _pull():
         if env.vcs == 'hg':
             sudo('hg pull -u')
         elif env.vcs == 'git':
-            sudo('git pull -u')
+            if env.branch is None or env.branch == 'master':
+                sudo('git pull -u')
+            else:
+                sudo('git pull origin %s' % env.branch)
 
 
 @task
