@@ -400,7 +400,7 @@ def _push_sources():
     else:
         with cd(env.code_root):
             sudo('git pull origin %s' % env.branch)
-            sudo('git checkout -b %s' % env.branch)
+            sudo('git checkout -B %s' % env.branch)
 
 
 def _clone():
