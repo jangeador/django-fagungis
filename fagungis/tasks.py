@@ -99,6 +99,7 @@ def _pull():
                 sudo('git pull -u')
             else:
                 sudo('git pull origin %s' % env.branch)
+                sudo('git checkout -B %s origin/%s' % (env.branch, env.branch))
 
 
 @task
@@ -403,7 +404,7 @@ def _push_sources():
     else:
         with cd(env.code_root):
             sudo('git pull origin %s' % env.branch)
-            sudo('git checkout -B %s' % env.branch)
+            sudo('git checkout -B %s origin/%s' % (env.branch, env.branch))
 
 
 def _clone():
