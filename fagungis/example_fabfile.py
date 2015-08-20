@@ -12,6 +12,7 @@ def example():
     env.project = 'example_production'
     #  repository of your project
     env.repository = 'https://bitbucket.org/DNX/example'
+    env.branch = 'master'
     #  the version control system used. hg or git
     env.vcs = 'git'
     #  hosts to deploy your project, users must be sudoers

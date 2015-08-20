@@ -393,9 +393,15 @@ def _push_sources():
     Push source code to server
     """
     _ensure_src_dir()
-    local('git push origin master')
-    with cd(env.code_root):
-        sudo('git pull origin master')
+    if env.branch is None or env.branch == 'master':
+        local('git push origin master')
+        with cd(env.code_root):
+            sudo('git pull origin master')
+    else:
+        local('git push origin %s' % env.branch)
+        with cd(env.code_root):
+            sudo('git pull origin %s' % env.branch)
+            sudo('git checkout origin %s' % env.branch)
 
 
 def _clone():
