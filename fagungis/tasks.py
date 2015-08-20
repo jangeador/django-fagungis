@@ -338,7 +338,7 @@ def _install_virtualenv():
 
 
 def _create_virtualenv():
-    if not exists(env.virtenv):
+    if not exists(join(env.virtenv, 'bin/activate')):
         sudo('virtualenv --%s %s' % (' --'.join(env.virtenv_options), env.virtenv))
 
 
